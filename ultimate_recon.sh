@@ -1,5 +1,7 @@
 #!/bin/bash
 
+TOOLS_PATH='/home/kali/software'
+
 while getopts ":d:" input;do
         case "$input" in
                 d) domain=${OPTARG}
@@ -55,6 +57,8 @@ fi
 # install massdns
 
 # install corsy 
+git clone https://github.com/s0md3v/Corsy.git
+cd Corsy ; pip3 install -r requirements.txt
 
 
 #whatweb x 
@@ -111,7 +115,7 @@ echo -e "${BLUE}[*] Check the list of IP addresses at $IP_PATH/final-ips.txt${RE
 
 echo "Starting Nuclei"
 mkdir nuclei_op
-NUCLEI_TEMPLATE_PATH="/home/kali/software/nuclei/nuclei-templates"
+NUCLEI_TEMPLATE_PATH="$TOOLS_PATH/nuclei/nuclei-templates"
 nuclei -l alive.txt -t "$NUCLEI_TEMPLATE_PATH/cves/*.yaml" -c 60 -o nuclei_op/cves.txt
 nuclei -l alive.txt -t "$NUCLEI_TEMPLATE_PATH/files/*.yaml" -c 60 -o nuclei_op/files.txt
 nuclei -l alive.txt -t "$NUCLEI_TEMPLATE_PATH/panels/*.yaml" -c 60 -o nuclei_op/panels.txt
@@ -122,7 +126,7 @@ nuclei -l alive.txt -t "$NUCLEI_TEMPLATE_PATH/vulnerabilities/*.yaml" -c 60 -o n
 
 #CORSY 
 echo "Now looking for CORS misconfiguration"
-python3 ~/tools/Corsy/corsy.py -i alive.txt -t 40 | tee -a corsy_op.txt
+python3 $TOOLS_PATH/Corsy/corsy.py -i alive.txt -t 40 | tee -a corsy_op.txt
 
 echo "Starting CMS detection"
 whatweb -i alive.txt | tee -a whatweb_op.txt
