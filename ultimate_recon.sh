@@ -52,13 +52,8 @@ else echo "$PROG not installed"
             esac
         done
 fi 
-# install httprobe 
+# end install httprobe 
 
-CMD='go get -v -u github.com/tomnomnom/httprobe'
-OUTPUT=$($CMD)
-if [ $CMD -eq $OUTPUT ]; then
-        echo "installed"
-fi 
 # install massdns
 
 # install corsy 
