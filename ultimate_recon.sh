@@ -24,7 +24,6 @@ for pk in $package; do
     }
 done
 
-
 # install sublist3r 
 # install subfinder 
 # install assetfinder
@@ -42,11 +41,10 @@ echo $OUTPUT2
 if [ "$OUTPUT" = "$OUTPUT2" ]; then
         echo "$PROG installed"
 else echo "$PROG not installed"
-     #ead -p "Install? [y/n]"
         while true; do
             read -p "Do you wish to install $PROG? [y/n]" yn
             case $yn in
-                [Yy]* ) echo "Installing $PROG"; go get -v -u github.com/tomnomnom/http>
+                [Yy]* ) echo "Installing $PROG"; go get -v -u $OUTPUT ;break;;
                 [Nn]* ) exit;;
                 * ) echo "Please answer yes or no.";;
             esac
@@ -58,13 +56,35 @@ fi
 
 # install corsy 
 
+
 #whatweb x 
 #waybackurls
 #unfurl
 #relative-url-extractor extract rb 
-#ffuf
-go get -v -u github.com/ffuf/ffuf
 
+# INSTALL ffuf
+# TODO move to function after testing 
+PROG='ffuf'
+OUTPUT="github.com/ffuf/ffuf"
+# redirect error output  
+OUTPUT2=$($CMD 2> /dev/null)
+echo $OUTPUT2
+if [ "$OUTPUT" = "$OUTPUT2" ]; then
+        echo "$PROG installed"
+else echo "$PROG not installed"
+        while true; do
+            read -p "Do you wish to install $PROG? [y/n]" yn
+            case $yn in
+                [Yy]* ) echo "Installing $PROG"; go get -v -u $OUTPUT ;break;;
+                [Nn]* ) exit;;
+                * ) echo "Please answer yes or no.";;
+            esac
+        done
+fi 
+#end INSTALL ffuf
+
+
+### EXECUTION AFTER INSTALL ### 
 sublist3r -d $domain -v -o op.txt
 subfinder -d $domain -o op.txt  
 assetfinder --subs-only $domain | tee -a op.txt
