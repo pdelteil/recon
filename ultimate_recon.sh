@@ -12,6 +12,64 @@ if [ -z "$domain" ]
                 exit 1
 fi
 
+#TODO 
+# check if installed tee, awk, sort 
+# if not install 
+package="tee"
+for pk in $package; do
+    dpkg -s "$pk" >/dev/null 2>&1 && {
+        echo "$pk is installed."
+    } || {
+        sudo apt-get install $pk
+    }
+done
+
+
+# install sublist3r 
+# install subfinder 
+# install assetfinder
+# install amass
+# install altdns 
+
+# install httprobe
+# TODO move to function after testing 
+PROG='httprobe'
+OUTPUT="github.com/tomnomnom/httprobe"
+# redirect error output  
+OUTPUT2=$($CMD 2> /dev/null)
+
+echo $OUTPUT2
+if [ "$OUTPUT" = "$OUTPUT2" ]; then
+        echo "$PROG installed"
+else echo "$PROG not installed"
+     #ead -p "Install? [y/n]"
+        while true; do
+            read -p "Do you wish to install $PROG? [y/n]" yn
+            case $yn in
+                [Yy]* ) echo "Installing $PROG"; go get -v -u github.com/tomnomnom/http>
+                [Nn]* ) exit;;
+                * ) echo "Please answer yes or no.";;
+            esac
+        done
+fi 
+# install httprobe 
+
+CMD='go get -v -u github.com/tomnomnom/httprobe'
+OUTPUT=$($CMD)
+if [ $CMD -eq $OUTPUT ]; then
+        echo "installed"
+fi 
+# install massdns
+
+# install corsy 
+
+#whatweb x 
+#waybackurls
+#unfurl
+#relative-url-extractor extract rb 
+#ffuf
+go get -v -u github.com/ffuf/ffuf
+
 sublist3r -d $domain -v -o op.txt
 subfinder -d $domain -o op.txt  
 assetfinder --subs-only $domain | tee -a op.txt
@@ -19,6 +77,7 @@ amass enum -passive -d $doamin | tee -a op.txt
 amass enum -active -d $domain -ip | tee -a amass_ips.txt
 cat amass_ips.txt | awk '{print $1}' | tee -a op.txt
 cat op.txt | sort -u | tee -a all.txt
+
 echo -e "######Starting Bruteforce######\n"
 altdns -i all.txt -o data_output -w ~/tools/recon/patterns.txt -r -s results_output.txt
 mv results_output.txt dns_op.txt
@@ -29,7 +88,8 @@ echo "Checking for alive subdomains"
 cat all.txt | httprobe | tee -a alive2.txt
 cat alive2.txt | sort -u | tee -a alive.txt
 
-~/tools/massdns/bin/massdns -r ~/tools/massdns/lists/resolvers.txt -q -t A -o S -w massdns.raw all.txt
+MASSDNS_PATH="/home/kali/tools/massdns"
+$MASSDNS_PATH/bin/massdns -r $MASSDNS_PATH/lists/resolvers.txt -q -t A -o S -w massdns.raw all.txt
 cat massdns.raw | grep -e ' A ' |  cut -d 'A' -f 2 | tr -d ' ' > massdns.txt
 cat *.txt | sort -V | uniq > $IP_PATH/final-ips.txt
 echo -e "${BLUE}[*] Check the list of IP addresses at $IP_PATH/final-ips.txt${RESET}"
@@ -45,7 +105,7 @@ nuclei -l alive.txt -t "$NUCLEI_TEMPLATE_PATH/technologies/*.yaml" -c 60 -o nucl
 nuclei -l alive.txt -t "$NUCLEI_TEMPLATE_PATH/tokens/*.yaml" -c 60 -o nuclei_op/tokens.txt
 nuclei -l alive.txt -t "$NUCLEI_TEMPLATE_PATH/vulnerabilities/*.yaml" -c 60 -o nuclei_op/vulnerabilities.txt
 
-
+#CORSY 
 echo "Now looking for CORS misconfiguration"
 python3 ~/tools/Corsy/corsy.py -i alive.txt -t 40 | tee -a corsy_op.txt
 
